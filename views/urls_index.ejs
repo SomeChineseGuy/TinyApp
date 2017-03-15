@@ -4,8 +4,11 @@
   <title>TinyApp</title>
 </head>
 <body>
-    <!-- Add your EJS code here -->
-    <form method="POST" action="/urls/9sm5xK/delete"></form>
-    <p> TESTING!!!! </p>
+ <h1> These are the shorten verison of the full links. </h1>
+    <% for (var urlsid in urls) { %>
+    <li>
+      <%= urlsid %> <a href ="<%= urls[urlsid] %>"> <%= urls[urlsid] %> </a>
+      </li>
+    <% } %>
 </body>
 </html>

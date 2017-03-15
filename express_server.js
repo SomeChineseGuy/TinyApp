@@ -56,7 +56,8 @@ app.post("/urls", (req, res) => {
   // console.log(urlDatabase)
   // res.send("Ok");         // Respond with 'Ok' (we will replace this)
   // Redirect to site that I typed in but using the shorten URL as my key
-  res.redirect(`/urls/ ${newRandomString}`)
+  res.redirect(`/urls/${newRandomString}`)
+  res.send("Ok");
 
 });
 
