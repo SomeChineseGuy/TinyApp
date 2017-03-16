@@ -39,6 +39,7 @@ app.get("/urls.json", (req, res) => {
 //find out whats the difference between app get and app post
 // how to push objects into ejs
 
+
 app.get("/urls", (req, res) => {
   let templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
