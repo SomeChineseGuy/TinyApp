@@ -14,7 +14,7 @@ function generateRandomString() {
   return text;
 
 }
-console.log(generateRandomString())
+
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
@@ -58,8 +58,16 @@ app.post("/urls", (req, res) => {
   // Redirect to site that I typed in but using the shorten URL as my key
   res.redirect(`/urls/${newRandomString}`)
   res.send("Ok");
-
 });
+
+app.post("/urls/:shortURL/delete", (req, res) => {
+  delete urlDatabase[req.params.shortURL];
+  res.redirect('/urls');
+});
+
+app.post("/url/:shortURL", (req, res) => {
+
+})
 
 app.get("/hello", (req, res) => {
   res.end("<html><body>Hello <b>World</b></body></html>\n");
@@ -70,8 +78,6 @@ app.get("/urls/:id", (req, res) => {
   console.log(req.params.id)
   res.render("urls_show", templateVars);
 });
-
-
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
