@@ -15,14 +15,12 @@ function generateRandomString() {
   text += possible.charAt(Math.floor(Math.random() * possible.length));
 
   return text;
-
 };
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
 const userName ={
-
 
 };
 
@@ -31,11 +29,6 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-app.get("/u/:shortURL", (req, res) => {
-  let longURL = urlDatabase[req.params.shortURL];
-  res.redirect(longURL);
-});
-
 app.get("/", (req, res) => {
   res.end("Hello!");
 });
@@ -43,10 +36,6 @@ app.get("/", (req, res) => {
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
-
-//find out whats the difference between app get and app post
-// how to push objects into ejs
-
 
 app.get("/urls", (req, res) => {
   let templateVars = {
@@ -58,20 +47,37 @@ app.get("/urls", (req, res) => {
 
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+   let templateVars = {
+    urls: urlDatabase,
+    username: req.cookies["username"]
+  };
+  res.render("urls_new", templateVars);
+});
+
+app.get("/urls/:shortURL", (req, res) => {
+  let shortURL = req.params.shortURL;
+  let longURL = urlDatabase[shortURL];
+  let templateVars = {
+    shortURL: shortURL,
+    longURL: longURL,
+    urls: urlDatabase,
+    username: req.cookies["username"]
+  };
+  res.render("urls_show", templateVars);
+});
+
+app.get("/u/:shortURL", (req, res) => {
+  let longURL = urlDatabase[req.params.shortURL];
+  let templateVars = {
+    username: req.cookies["username"]
+  };
+  res.redirect(longURL);
 });
 
 app.post("/urls", (req, res) => {
-  // console.log(req.body);  // debug statement to see POST parameters
-  // res.send("Ok");         // Respond with 'Ok' (we will replace this)
-  // When URL is received, generate short URL get URL
   let newRandomString = generateRandomString();
-  // Set newRandomString as my key to the URL that i typed urls_inde
   urlDatabase[newRandomString] = req.body['longURL']
-  // console.log(urlDatabase)
-  // res.send("Ok");         // Respond with 'Ok' (we will replace this)
-  // Redirect to site that I typed in but using the shorten URL as my key
-  res.redirect(`/urls/${newRandomString}`)
+  res.redirect(`/urls`)
   res.send("Ok");
 });
 
@@ -81,16 +87,12 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.post("/urls/:shortURL", (req, res) => {
-  // Need to edit these 2 lines
   const shortURL = req.params.shortURL
-  // short URL is now the key to my data base
-  // Look over this code
   urlDatabase[shortURL] = req.body.longURL
-  res.redirect(`/urls`)
+  res.redirect('/urls')
 });
 
 app.post("/login", (req, res) => {
-  console.log('post login body', req.body)
   res.cookie('username', req.body.username)
   res.redirect('/')
 });
@@ -104,13 +106,6 @@ app.get("/hello", (req, res) => {
   res.end("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-app.get("/urls/:shortURL", (req, res) => {
-  let shortURL = req.params.shortURL;
-  let longURL = urlDatabase[shortURL];
-  //remind yourself what do these lines do
-  let templateVars = { shortURL: shortURL, longURL: longURL };
-  res.render("urls_show", templateVars);
-});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
