@@ -36,6 +36,9 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+//find out whats the difference between app get and app post
+// how to push objects into ejs
+
 app.get("/urls", (req, res) => {
   let templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
@@ -65,17 +68,24 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   res.redirect('/urls');
 });
 
-app.post("/url/:shortURL", (req, res) => {
-
+app.post("/urls/:shortURL", (req, res) => {
+  // Need to edit these 2 lines
+  const shortURL = req.params.shortURL
+  // short URL is now the key to my data base
+  // Look over this code
+  urlDatabase[shortURL] = req.body.longURL
+  res.redirect(`/urls`)
 })
 
 app.get("/hello", (req, res) => {
   res.end("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-app.get("/urls/:id", (req, res) => {
-  let templateVars = { shortURL: req.params.id };
-  console.log(req.params.id)
+app.get("/urls/:shortURL", (req, res) => {
+  let shortURL = req.params.shortURL;
+  let longURL = urlDatabase[shortURL];
+  //remind yourself what do these lines do
+  let templateVars = { shortURL: shortURL, longURL: longURL };
   res.render("urls_show", templateVars);
 });
 
