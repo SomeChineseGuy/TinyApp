@@ -51,15 +51,8 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  // console.log(req.body);  // debug statement to see POST parameters
-  // res.send("Ok");         // Respond with 'Ok' (we will replace this)
-  // When URL is received, generate short URL get URL
   let newRandomString = generateRandomString();
-  // Set newRandomString as my key to the URL that i typed urls_inde
   urlDatabase[newRandomString] = req.body['longURL']
-  // console.log(urlDatabase)
-  // res.send("Ok");         // Respond with 'Ok' (we will replace this)
-  // Redirect to site that I typed in but using the shorten URL as my key
   res.redirect(`/urls/${newRandomString}`)
   res.send("Ok");
 });
