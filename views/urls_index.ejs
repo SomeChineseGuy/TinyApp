@@ -6,9 +6,9 @@
 <body>
 <header> <% include partials/_header %> </header>
  <h1> These are the shorten verison of the full links. </h1>
-    <% for (var urlsid in urls) { %>
+    <% for (var urlsid in urlDatabase) { %>
     <li>
-      <%= urlsid %></a>  -----------> <a href ="<%= urls[urlsid] %>">  <%= urls[urlsid] %> </a>
+      <a href="/urls/<%= urlsid %>"><%= urlsid %></a>  -----------> <a href ="<%= urlDatabase[urlsid].url %>">  <%= urlDatabase[urlsid].url %> </a>
       <form method="POST" action="/urls/<%= urlsid %>/delete">
         <button type="submit" name="delete">Delete</button>
       </form>
@@ -16,6 +16,6 @@
       <button type="submit" name="update">Update</button></form>
       </li>
     <% } %>
-    <p> Add new shorten URL <a href="urls/show">here!</a></p>
+    <p> Add new shorten URL <a href="/urls/new">here!</a>
 </body>
 </html>

@@ -1,3 +1,4 @@
+//----------------------//----------------------//Variables
 const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -7,6 +8,8 @@ app.set("view engine", "ejs");
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended: true}));
 
+//----------------------//----------------------//Functions
+
 
 function generateRandomString() {
   var text = "";
@@ -15,7 +18,6 @@ function generateRandomString() {
   text += possible.charAt(Math.floor(Math.random() * possible.length));
   return text;
 };
-
 
 function areCredentialsInvalid(email, password) {
   if (!email || !password) {
@@ -37,30 +39,44 @@ function checkExsistingEmailAndPassword (email, password){
       return id;
     }
   }
-  // return undefined;
 }
+
+function matchingCurrrentUser (shortURL) {
+  if (urlDatabase[shortURL].userId === req.cookies.user_id) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+//----------------------//----------------------//Object
 
 const users = {
   'Somechineseguy': {
     id: 'Somechineseguy',
     email: 'alvin.cl.ng@gmail.com',
-    password: 'Somechineseguy'
+    password: 'Somechineseguy',
   },
   'Otherguy': {
     id: 'Otherguy',
     email: 'Other@email.com',
-    password: 'Otherpassword'
+    "password": 'Otherpassword'
   }
-
 };
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {
+    url: "http://www.lighthouselabs.ca",
+    userId: "Somechineseguy"
+  },
+  "9sm5xK": {
+    url: "http://www.google.com",
+    userId: "Otherguy"
+  },
 };
 
 app.get("/", (req, res) => {
-  res.render("_login");
+  res.redirect("/login");
 });
 
 app.get("/urls.json", (req, res) => {
@@ -68,11 +84,17 @@ app.get("/urls.json", (req, res) => {
 });
 
 
-
-
-
 app.use(function(req, res, next){
-  res.locals.user = users[req.cookies.user_id];
+  if(req.cookies.user_id in users) {
+    if(typeof users[req.cookies.user_id].email !== "undefined") {
+      res.locals.userlogin = true;
+      res.locals.user = users[req.cookies.user_id];
+    } else {
+      res.locals.userlogin = false;
+      }
+    } else {
+      res.locals.userlogin = false;
+    }
   res.locals.urls = urlDatabase;
   next();
 });
@@ -83,20 +105,24 @@ app.use(function(req, res, next){
 app.get("/urls", (req, res) => {
   let userID = req.cookies.user_id
   let templateVars = {
+    "urlDatabase": urlDatabase
   };
   res.render("urls_index", templateVars);
 });
 
 
 app.get("/urls/new", (req, res) => {
-   let templateVars = {
-  };
-  res.render("urls_new", templateVars);
+   if(res.locals.userlogin) {
+   res.render("urls_new")
+ } else {
+   res.redirect("/login")
+ }
 });
+
 
 app.get("/urls/:shortURL", (req, res) => {
   let shortURL = req.params.shortURL;
-  let longURL = urlDatabase[shortURL];
+  let longURL = urlDatabase[shortURL].url;
   let templateVars = {
     shortURL: shortURL,
     longURL: longURL,
@@ -104,8 +130,10 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+
 app.get("/u/:shortURL", (req, res) => {
-  let longURL = urlDatabase[req.params.shortURL];
+  let longURL = urlDatabase[req.params.shortURL].url;
+  console.log(longURL)
   let templateVars = {
   };
   res.redirect(longURL);
@@ -113,9 +141,14 @@ app.get("/u/:shortURL", (req, res) => {
 
 app.post("/urls", (req, res) => {
   let newRandomString = generateRandomString();
-  urlDatabase[newRandomString] = req.body['longURL'];
+  var userId = req.cookies["user_id"];
+
+  var urlDetails = {};
+  urlDetails['url'] = req.body.longURL;
+  urlDetails['userId'] = userId;
+  urlDatabase[newRandomString] = urlDetails;
   res.redirect(`/urls`);
-  res.send("Ok");
+
 });
 
 
@@ -133,7 +166,7 @@ app.post("/register", (req, res) => {
     return res.status(400).send("Here's a bunny with a pancake on its head.  Your argument is invalid.");
     // return res.status(400).render("i_hate_users", {});
   } else if (checkExsistingEmail(uEmail)) {
-    return res.status(400).send("Here's a bunny with a pancake on its head.  Your argument is invalid.2");
+    return res.status(400).send("Here's a bunny with a pancake on its head.  Your argument is invalid.... Also that email is in uses.... PANCAKES!!!");
     } else {
       users[user_id] = {
         id: user_id,
@@ -155,8 +188,11 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  urlDatabase[shortURL] = req.body.longURL
+  console.log(shortURL)
+  urlDatabase[shortURL].url = req.body.longURL
+  // console.log(urlDatabase[shortURL])
   res.redirect('/urls')
+  console.log(urlDatabase)
 });
 
 app.get("/login", (req, res) => {
@@ -176,8 +212,6 @@ app.post("/login", (req, res) => {
   res.cookie("user_id", currentUser)
   res.redirect('/urls');
 });
-
-
 
 
 app.post("/logout", (req, res) => {
