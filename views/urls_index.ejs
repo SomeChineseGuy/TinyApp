@@ -6,13 +6,13 @@
 <body>
 <header> <% include partials/_header %> </header>
  <h1> These are the shorten verison of the full links. </h1>
-    <% for (var urlsid in urlDatabase) { %>
+    <% for (var urlsid of urlArray) { %>
     <li>
-      <a href="/urls/<%= urlsid %>"><%= urlsid %></a>  -----------> <a href ="<%= urlDatabase[urlsid].url %>">  <%= urlDatabase[urlsid].url %> </a>
-      <form method="POST" action="/urls/<%= urlsid %>/delete">
+      <a href="/urls/<%= urlsid.short %>"><%= urlsid.short %></a>  -----------> <a href ="<%= urlsid.long %>">  <%= urlsid.long %> </a>
+      <form method="POST" action="/urls/<%= urlsid.short %>/delete">
         <button type="submit" name="delete">Delete</button>
       </form>
-      <form method="GET" action="/urls/<%= urlsid %>">
+      <form method="GET" action="/urls/<%= urlsid.short %>">
       <button type="submit" name="update">Update</button></form>
       </li>
     <% } %>
