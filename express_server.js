@@ -101,9 +101,6 @@ const urlDatabase = {
   },
 };
 
-app.get("/", (req, res) => {
-  res.redirect("/login");
-});
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
@@ -126,6 +123,13 @@ app.use(function(req, res, next){
 });
 
 
+app.get("/", (req, res) => {
+  if(res.locals.userlogin) {
+   res.redirect("/urls");
+ } else {
+   res.redirect("/login");
+ }
+});
 
 
 app.get("/urls", (req, res) => {
@@ -133,15 +137,19 @@ app.get("/urls", (req, res) => {
   let templateVars = {
     "urlArray": loopDataBase(req.session.user_id)
   };
-  res.render("urls_index", templateVars);
+  if(res.locals.userlogin) {
+   res.render("urls_index", templateVars);
+ } else {
+  res.render("_401");
+}
 });
 
 
 app.get("/urls/new", (req, res) => {
    if(res.locals.userlogin) {
-   res.render("urls_new")
+   res.render("urls_new");
  } else {
-   res.redirect("/login")
+   res.render("_401");
  }
 });
 
@@ -152,15 +160,18 @@ app.get("/urls/:shortURL", (req, res) => {
   let templateVars = {
     shortURL: shortURL,
     longURL: longURL,
-  };
-  res.render("urls_show", templateVars);
+  }; if(res.locals.userlogin) {
+   res.render("urls_show", templateVars);
+  } else {
+   res.render("_401");
+  } if (!shortURL === urlDatabase) {
+    res.render("_404");
+  }
 });
 
 
 app.get("/u/:shortURL", (req, res) => {
   let longURL = urlDatabase[req.params.shortURL].url;
-  let templateVars = {
-  };
   res.redirect(longURL);
 });
 
@@ -188,7 +199,7 @@ app.post("/register", (req, res) => {
   const uPassword = req.body.password;
   const user_id = generateRandomString();
   if (areCredentialsInvalid(uEmail, uPassword)) {
-    return res.status(400).send("Here's a bunny with a pancake on its head.  Your argument is invalid.");
+    return res.status(400).send("Here's a bunny with a pancake on its head.  Your argument is invalid....  Also you typed in the wrong password... PANCAKES!!");
     // return res.status(400).render("i_hate_users", {});
   } else if (checkExsistingEmail(uEmail)) {
     return res.status(400).send("Here's a bunny with a pancake on its head.  Your argument is invalid.... Also that email is in uses.... PANCAKES!!!");
@@ -199,7 +210,7 @@ app.post("/register", (req, res) => {
         password: bcrypt.hashSync(uPassword, 10)
       }
       req.session.user_id = user_id;
-      res.redirect('/urls')
+      res.redirect('/urls');
     }
   });
 
@@ -213,12 +224,12 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  urlDatabase[shortURL].url = req.body.longURL
-  res.redirect('/urls')
+  urlDatabase[shortURL].url = req.body.longURL;
+  res.redirect('/urls');
 });
 
 app.get("/login", (req, res) => {
-  res.render("_login")
+  res.render("_login");
 })
 
 
@@ -231,7 +242,7 @@ app.post("/login", (req, res) => {
   if (!currentUser)  {
     return res.status(403).send("Wait wait wait.... That's not you")
   }
-  req.session("user_id", currentUser)
+  req.session("user_id", currentUser);
   res.redirect('/urls');
 });
 
