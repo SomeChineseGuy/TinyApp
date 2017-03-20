@@ -101,11 +101,9 @@ const urlDatabase = {
   },
 };
 
-
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
-
 
 app.use(function(req, res, next){
   if(req.session.user_id in users) {
@@ -122,7 +120,6 @@ app.use(function(req, res, next){
   next();
 });
 
-
 app.get("/", (req, res) => {
   if(res.locals.userlogin) {
    res.redirect("/urls");
@@ -130,7 +127,6 @@ app.get("/", (req, res) => {
    res.redirect("/login");
  }
 });
-
 
 app.get("/urls", (req, res) => {
   let userID = req.session.user_id
@@ -140,19 +136,19 @@ app.get("/urls", (req, res) => {
   if(res.locals.userlogin) {
    res.render("urls_index", templateVars);
  } else {
-  res.render("_401");
+  res.status(401).render("_401");
 }
 });
-
 
 app.get("/urls/new", (req, res) => {
    if(res.locals.userlogin) {
    res.render("urls_new");
  } else {
-   res.render("_401");
+   res.sttus(401).render("_401");
  }
 });
 
+//make check for URL data base to match current USer
 
 app.get("/urls/:shortURL", (req, res) => {
   let shortURL = req.params.shortURL;
@@ -163,16 +159,19 @@ app.get("/urls/:shortURL", (req, res) => {
   }; if(res.locals.userlogin) {
    res.render("urls_show", templateVars);
   } else {
-   res.render("_401");
+   res.status(401).render("_401");
   } if (!shortURL === urlDatabase) {
-    res.render("_404");
-  }
+    res.status(404).render("_404");
+  } if (!res.locals.user === urlDatabase['userId'])
+  res.status(403).render("_403")
 });
 
-
 app.get("/u/:shortURL", (req, res) => {
-  let longURL = urlDatabase[req.params.shortURL].url;
-  res.redirect(longURL);
+  if(!urlDatabase[req.params.shortURL]) {
+    res.status(404).render('_404')
+  } else {
+    res.redirect(urlDatabase[req.params.shortURL]['url']);
+  }
 });
 
 app.post("/urls", (req, res) => {

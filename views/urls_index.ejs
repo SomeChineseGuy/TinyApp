@@ -5,7 +5,7 @@
 </head>
 <body>
 <header> <% include partials/_header %> </header>
- <h1> These are the shorten verison of the full links. </h1>
+ <h1> My links. </h1>
     <% for (var urlsid of urlArray) { %>
     <li>
       <a href="/urls/<%= urlsid.short %>"><%= urlsid.short %></a>  -----------> <a href ="<%= urlsid.long %>">  <%= urlsid.long %> </a>
