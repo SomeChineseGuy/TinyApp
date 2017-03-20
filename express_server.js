@@ -152,18 +152,22 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
   let shortURL = req.params.shortURL;
-  let longURL = urlDatabase[shortURL].url;
-  let templateVars = {
-    shortURL: shortURL,
-    longURL: longURL,
-  }; if(res.locals.userlogin) {
-   res.render("urls_show", templateVars);
+  if(res.locals.userlogin) {
+    if (!urlDatabase[shortURL]) {
+      res.status(404).render("_404");
+    } else if (res.locals.user !== urlDatabase[shortURL].userId) {
+      res.status(403).render("_403");
+    } else {
+      let longURL = urlDatabase[shortURL].url;
+      let templateVars = {
+        shortURL: shortURL,
+        longURL: longURL,
+      };
+       res.render("urls_show", templateVars);
+    }
   } else {
    res.status(401).render("_401");
-  } if (!shortURL === urlDatabase) {
-    res.status(404).render("_404");
-  } if (!res.locals.user === urlDatabase['userId'])
-  res.status(403).render("_403")
+  }
 });
 
 app.get("/u/:shortURL", (req, res) => {
@@ -183,15 +187,11 @@ app.post("/urls", (req, res) => {
   urlDetails['userId'] = userId;
   urlDatabase[newRandomString] = urlDetails;
   res.redirect(`/urls`);
-
 });
-
 
 app.get("/register", (req, res) => {
   res.render("_registration");
 });
-
-
 
 app.post("/register", (req, res) => {
   const uEmail = req.body.email;
@@ -213,26 +213,30 @@ app.post("/register", (req, res) => {
     }
   });
 
-
-
-
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect('/urls');
 });
 
 app.post("/urls/:shortURL", (req, res) => {
-  const shortURL = req.params.shortURL;
-  urlDatabase[shortURL].url = req.body.longURL;
-  res.redirect('/urls');
+let shortURL = req.params.shortURL;
+  if(res.locals.userlogin) {
+    if (!urlDatabase[shortURL]) {
+      res.status(404).render("_404");
+    } else if (res.locals.user !== urlDatabase[shortURL].userId) {
+      res.status(403).render("_403");
+    } else {
+      urlDatabase[shortURL].url = req.body.longURL;
+      res.redirect('/urls/' + shortURL);
+    }
+  } else {
+   res.status(401).render("_401");
+  }
 });
 
 app.get("/login", (req, res) => {
   res.render("_login");
 })
-
-
-
 
 app.post("/login", (req, res) => {
   const loginEmail = req.body.email;
