@@ -6,17 +6,14 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session')
 
-
 const bcrypt = require('bcrypt');
 const password = "purple-monkey-dinosaur";
 const hashed_password = bcrypt.hashSync(password, 10);
-
 
 app.set("view engine", "ejs");
 app.use(cookieSession({
   name: 'session',
   keys: ['jump', 'up', 'here'],
-
   maxAge: 24 * 60 * 60 * 1000
 }));
 
@@ -101,6 +98,8 @@ const urlDatabase = {
   },
 };
 
+//----------------------//----------------------//Middleware
+
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
@@ -119,6 +118,8 @@ app.use(function(req, res, next){
   res.locals.urls = urlDatabase;
   next();
 });
+
+//----------------------//----------------------//Loading page
 
 app.get("/", (req, res) => {
   if(res.locals.userlogin) {
@@ -148,7 +149,7 @@ app.get("/urls/new", (req, res) => {
  }
 });
 
-//make check for URL data base to match current USer
+//----------------------//----------------------//Short URLS
 
 app.get("/urls/:shortURL", (req, res) => {
   let shortURL = req.params.shortURL;
@@ -178,16 +179,8 @@ app.get("/u/:shortURL", (req, res) => {
   }
 });
 
-app.post("/urls", (req, res) => {
-  let newRandomString = generateRandomString();
-  var userId = req.session["user_id"];
 
-  var urlDetails = {};
-  urlDetails['url'] = req.body.longURL;
-  urlDetails['userId'] = userId;
-  urlDatabase[newRandomString] = urlDetails;
-  res.redirect(`/urls`);
-});
+//----------------------//----------------------//Register
 
 app.get("/register", (req, res) => {
   res.render("_registration");
@@ -199,7 +192,6 @@ app.post("/register", (req, res) => {
   const user_id = generateRandomString();
   if (areCredentialsInvalid(uEmail, uPassword)) {
     return res.status(400).send("Here's a bunny with a pancake on its head.  Your argument is invalid....  Also you typed in the wrong password... PANCAKES!!");
-    // return res.status(400).render("i_hate_users", {});
   } else if (checkExsistingEmail(uEmail)) {
     return res.status(400).send("Here's a bunny with a pancake on its head.  Your argument is invalid.... Also that email is in uses.... PANCAKES!!!");
     } else {
@@ -212,6 +204,18 @@ app.post("/register", (req, res) => {
       res.redirect('/urls');
     }
   });
+
+//----------------------//----------------------///URLS
+
+app.post("/urls", (req, res) => {
+  let newRandomString = generateRandomString();
+  var userId = req.session["user_id"];
+  var urlDetails = {};
+  urlDetails['url'] = req.body.longURL;
+  urlDetails['userId'] = userId;
+  urlDatabase[newRandomString] = urlDetails;
+  res.redirect(`/urls`);
+});
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
@@ -233,7 +237,7 @@ let shortURL = req.params.shortURL;
    res.status(401).render("_401");
   }
 });
-
+//----------------------//----------------------//Login
 app.get("/login", (req, res) => {
   res.render("_login");
 })
@@ -248,7 +252,6 @@ app.post("/login", (req, res) => {
   req.session("user_id", currentUser);
   res.redirect('/urls');
 });
-
 
 app.post("/logout", (req, res) => {
   req.session = null;
