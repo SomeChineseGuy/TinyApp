@@ -52,7 +52,6 @@ function checkExsistingEmailAndPassword (email, password){
   }
 }
 
-
 function matchingCurrrentUser (shortURL, userID) {
   if (urlDatabase[shortURL].userId === userID) {
     return true;
@@ -60,7 +59,7 @@ function matchingCurrrentUser (shortURL, userID) {
     return false;
   }
 }
-//return an array of objects the objects will have short url and a long url
+
 function loopDataBase(currentUser) {
   var space = [];
   for (let keyDataBase in urlDatabase) {
@@ -156,7 +155,7 @@ app.get("/urls/:shortURL", (req, res) => {
   if(res.locals.userlogin) {
     if (!urlDatabase[shortURL]) {
       res.status(404).render("_404");
-    } else if (res.locals.user !== urlDatabase[shortURL].userId) {
+    } else if (res.locals.user.id !== urlDatabase[shortURL].userId) {
       res.status(403).render("_403");
     } else {
       let longURL = urlDatabase[shortURL].url;
@@ -227,7 +226,8 @@ let shortURL = req.params.shortURL;
   if(res.locals.userlogin) {
     if (!urlDatabase[shortURL]) {
       res.status(404).render("_404");
-    } else if (res.locals.user !== urlDatabase[shortURL].userId) {
+    }
+    else if (res.locals.user.id !== urlDatabase[shortURL].userId) {
       res.status(403).render("_403");
     } else {
       urlDatabase[shortURL].url = req.body.longURL;

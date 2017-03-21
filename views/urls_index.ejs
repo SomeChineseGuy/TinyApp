@@ -10,10 +10,10 @@
     <li>
       <a href="/urls/<%= urlsid.short %>"><%= urlsid.short %></a>  -----------> <a href ="<%= urlsid.long %>">  <%= urlsid.long %> </a>
       <form method="POST" action="/urls/<%= urlsid.short %>/delete">
-        <button type="submit" name="delete">Delete</button>
+        <button type="submit">Delete</button>
       </form>
       <form method="GET" action="/urls/<%= urlsid.short %>">
-      <button type="submit" name="update">Update</button></form>
+      <button type="submit">Update</button></form>
       </li>
     <% } %>
     <p> Add new shorten URL <a href="/urls/new">here!</a>
