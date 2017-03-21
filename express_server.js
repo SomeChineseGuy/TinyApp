@@ -46,7 +46,7 @@ function checkExsistingEmail(email) {
 
 function checkExsistingEmailAndPassword (email, password){
   for (var id in users) {
-    if (users[id].email === email && users[id].password) {
+    if (users[id].email === email && bcrypt.hashSync(password, users[id].password)) {
       return id;
     }
   }
@@ -207,18 +207,26 @@ app.post("/register", (req, res) => {
 //----------------------//----------------------///URLS
 
 app.post("/urls", (req, res) => {
-  let newRandomString = generateRandomString();
-  var userId = req.session["user_id"];
-  var urlDetails = {};
-  urlDetails['url'] = req.body.longURL;
-  urlDetails['userId'] = userId;
-  urlDatabase[newRandomString] = urlDetails;
-  res.redirect(`/urls`);
+  if(res.locals.userlogin) {
+    let newRandomString = generateRandomString();
+    var userId = req.session["user_id"];
+    var urlDetails = {};
+    urlDetails['url'] = req.body.longURL;
+    urlDetails['userId'] = userId;
+    urlDatabase[newRandomString] = urlDetails;
+    res.redirect(`/urls`);
+  } else {
+    res.sttus(401).render("_401");
+   }
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
+  if(res.locals.userlogin) {
   delete urlDatabase[req.params.shortURL];
   res.redirect('/urls');
+  } else {
+   res.sttus(401).render("_401")
+ }
 });
 
 app.post("/urls/:shortURL", (req, res) => {
@@ -249,7 +257,10 @@ app.post("/login", (req, res) => {
   if (!currentUser)  {
     return res.status(403).send("Wait wait wait.... That's not you")
   }
-  req.session("user_id", currentUser);
+  const user = {
+    user_id: currentUser
+  }
+  req.session = user;
   res.redirect('/urls');
 });
 
