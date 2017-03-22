@@ -216,7 +216,7 @@ app.post("/urls", (req, res) => {
     urlDatabase[newRandomString] = urlDetails;
     res.redirect(`/urls`);
   } else {
-    res.sttus(401).render("_401");
+    res.status(401).render("_401");
    }
 });
 
@@ -225,7 +225,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect('/urls');
   } else {
-   res.sttus(401).render("_401")
+   res.status(401).render("_401")
  }
 });
 
